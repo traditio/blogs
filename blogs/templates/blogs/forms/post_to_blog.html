@@ -1,0 +1,7 @@
+<form action="" method="post">
+    {% csrf_token %}
+    <ul class="blog-post-form">
+        {{ form.as_ul }}
+        <li><input type="submit" value="Создать запись"></li>
+    </ul>
+</form>

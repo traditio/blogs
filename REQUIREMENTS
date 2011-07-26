@@ -1,0 +1,14 @@
+django-cms
+setuptools
+PIL
+pip
+South
+Django
+django-appmedia
+django-classy-tags
+django-taggit
+pytils
+PyYaml
+
+-e git+git://github.com/HonzaKral/django-threadedcomments.git#egg=django-threadedcomments
+-e git+git://github.com/dcramer/django-ratings.git#egg=djangoratings

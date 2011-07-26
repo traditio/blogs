@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+
+{% block extra-head %}
+    <script type="text/javascript">
+        // голосовалка
+    </script>
+{% endblock %}
+
+
+{% block content %}
+
+    <h1>{% if blog.author %}{{ blog.author.username }} - {% endif %}
+        {{ blog.title }}
+    </h1>
+    
+    {% if user_can_post %}
+        {% with form as form %}
+            {% include "blogs/forms/post_to_blog.html" %}
+        {% endwith %}
+    {% endif %}
+
+    <ul class="blog-entries">
+        {% for post in posts %}
+            {% with post as post %}
+                {% include "blogs/post.html" %}
+            {% endwith %}
+        {% empty %}
+            <li><p>Удивительно, но пока еще нет ни одного поста.</p></li>
+        {% endfor %}
+    </ul>
+
+{#    <div class="more">#}
+{#        <a href="#">Больше постов</a>#}
+{#    </div>#}
+
+{% endblock %}

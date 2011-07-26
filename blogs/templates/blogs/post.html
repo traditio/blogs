@@ -1,0 +1,22 @@
+<li>
+    <div class="date">{{ post.created }}</div>
+    {% if post.title %}
+        <h2>{{ post.title }}</h2>
+    {% endif %}
+    <div class="body">
+        {#                    <div class="avatar">{{ post.author.avatar }}</div>#}
+        <div class="text">{{ post.content|safe }}</div>
+        {% with post.tags.all as tags %}
+            {% if tags %}
+                <div class="tags"><span style="font-weight: bold;">Теги: </span> {{ tags|join:", " }}</div>
+            {% endif %}
+        {% endwith %}
+        {#                    {% with entry as obj %}#}
+        {#                        {% include "ratings/rating.html" %}#}
+        {#                        {% include "blogs/comments/count.html" %}#}
+        {#                    {% endwith %}#}
+    </div>
+    <div class="actions">
+        <a href="{% url blogs_post_delete blog_pk=post.blog_id post_pk=post.pk %}">Удалить запись</a>
+    </div>
+</li>
