@@ -72,11 +72,11 @@ pre_save.connect(Blog.create_slug, Blog)
 
 class BlogPost(models.Model):
     blog = models.ForeignKey(Blog, related_name='posts')
-    title = models.CharField(max_length=255, blank=True, null=True)
+    title = models.CharField(max_length=255, verbose_name=_(u'Заголовок'), blank=True, null=True)
     slug = models.CharField(verbose_name=_(u'Слэг'), max_length=255, unique=True, blank=True, null=False)
-    content = models.TextField()
+    content = models.TextField(verbose_name=_(u'Текст'))
 
-    tags = TaggableManager(blank=True)
+    tags = TaggableManager(verbose_name=_(u'Теги'), blank=True)
     ratings = generic.GenericRelation(RatedItem)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -87,6 +87,13 @@ class BlogPost(models.Model):
         verbose_name = _(u'пост')
         verbose_name_plural = _(u'посты')
 
+    @models.permalink
+    def get_absolute_url(self):
+        if self.blog.author:
+            kwargs = dict(author=self.blog.author.username, blog_slug=self.blog.slug, post_slug=self.slug)
+        else:
+            kwargs = dict(blog_slug=self.blog.slug, post_slug=self.slug)
+        return ('blogs_post', [], kwargs)
 
     @classmethod
     def create_slug(cls, instance, raw, created, using, **kwargs):

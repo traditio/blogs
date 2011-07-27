@@ -2,14 +2,13 @@
 
 {% block content %}
 
-    {% if saved %}
-        <p>Сохранено!</p>
-    {% endif %}
-    
+    <h1>Редактирование поста</h1>
+
     <form action="" method="post">
-        <ul>
-            {% csrf_token %}
-            {{ form.as_ul }}
+        <ul class="form">
+            {% with form as form %}
+                {% include "includes/form.html" %}
+            {% endwith %}
             <li><input type="submit" value="Сохранить"></li>
         </ul>
     </form>

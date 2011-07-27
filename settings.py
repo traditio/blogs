@@ -109,6 +109,10 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.admin',
+    'django.contrib.comments',
+    # комментарии
+    'threadedcomments',
+    'blogs.comments',
     # рейтинги
     'ratings',
     # теги
@@ -130,6 +134,8 @@ INSTALLED_APPS = (
     # комментарии
     'django.contrib.comments',
     'threadedcomments',
+    # расширения для джанги
+    'django_extensions',
 )
 
-COMMENTS_APP = 'threadedcomments'
+COMMENTS_APP = 'blogs.comments'

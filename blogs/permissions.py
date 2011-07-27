@@ -10,5 +10,8 @@ class BlogPostPermissions(object):
             return True
         return False
 
+    def can_delete_comments(self, user):
+        return self.can_delete(user)
+    
     def can_edit(self, user):
         return self.can_delete(user)

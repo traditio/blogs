@@ -1,17 +1,19 @@
 #coding=utf-8
 from django.contrib.auth.decorators import login_required
-from django.http import  Http404, HttpResponse, HttpResponseForbidden
+from django.http import  Http404, HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_http_methods
-from django.views.generic.simple import direct_to_template, redirect_to
+from django.views.generic.simple import direct_to_template
+from threadedcomments.models import ThreadedComment
+
 from blogs.forms import BlogPostForm
 from blogs.models import Blog, BlogPost
-import settings
+from blogs import settings
 
 
-def get_blog(author, slug):
+def get_blog_or_404(author, slug):
     blog = Blog.objects.get_by_author_slug(author, slug)
     if not blog:
         raise Http404(u"Блог %s не найден." % smart_unicode(slug))
@@ -23,7 +25,7 @@ def get_blog(author, slug):
 def index(request, author, slug):
     """Содерижмое блога"""
     form = BlogPostForm(request.POST or None)
-    blog = get_blog(author, slug)
+    blog = get_blog_or_404(author, slug)
 
     if request.method == "POST":
         if not blog.user_can_post(request.user):
@@ -60,6 +62,20 @@ def post_delete(request, blog_pk, post_pk):
         post.blog.title
     ))
 
+@require_http_methods(["GET"])
+@login_required
+def comment_delete(request, post_pk, comment_pk):
+    post = get_object_or_404(BlogPost, pk=post_pk)
+    if post.permissions.can_delete_comments(request.user):
+        comment = get_object_or_404(ThreadedComment, pk=comment_pk)
+        comment.delete()
+        request.flash['message'] = _(u'Комментарий удален.')
+        return redirect(post.get_absolute_url())
+    return HttpResponseForbidden(u"Пользователь {0} не может удалять комментарии из постов блога \"{1}\".".format(
+        request.user.username,
+        post.blog.title
+    ))
+
 
 @require_http_methods(["GET", "POST"])
 @login_required
@@ -85,3 +101,21 @@ def post_edit(request, blog_pk, post_pk):
         post=post,
         saved=saved
     ))
+
+
+@require_http_methods(["GET", "POST"])
+@login_required
+def post(request, author, blog_slug, post_slug):
+    blog = get_blog_or_404(author, blog_slug)
+    post = get_object_or_404(BlogPost, blog=blog, slug=post_slug)
+    return direct_to_template(request, "blogs/post.html", dict(
+        blog=blog,
+        post=post,
+        ))
+
+
+@require_http_methods(["GET"])
+def comment_added(request, post_pk):
+    post = get_object_or_404(BlogPost, pk=post_pk)
+    request.flash['message'] = _(u'Комментарий добавлен.')
+    return redirect(post.get_absolute_url())

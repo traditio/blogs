@@ -1,8 +1,12 @@
-<li>
-    <div class="date">{{ post.created }}</div>
+{% extends "base.html" %}
+{% load comments %}
+{% load threadedcomments_tags %}
+
+{% block content %}
     {% if post.title %}
-        <h2>{{ post.title }}</h2>
+        <h1>{{ post.title }}</h1>
     {% endif %}
+    <div class="date">{{ post.created }}</div>
     <div class="body">
         {#                    <div class="avatar">{{ post.author.avatar }}</div>#}
         <div class="text">{{ post.content|safe }}</div>
@@ -20,4 +24,52 @@
         <a href="{% url blogs_post_delete blog_pk=post.blog_id post_pk=post.pk %}">Удалить</a>
         <a href="{% url blogs_post_edit blog_pk=post.blog_id post_pk=post.pk %}">Редактировать</a>
     </div>
-</li>
+
+
+
+    <h2>Комментарии</h2>
+    <p>
+        {% get_comment_count for post as comment_count %}
+        Количество комментариев: {{ comment_count }}
+    </p>
+
+
+    <ul class="comments">
+    {% get_comment_list for post as comment_list %}
+    {% for comment in comment_list|fill_tree|annotate_tree %}
+        {% if comment.open %}
+            <blockquote>
+        {% endif %}
+        <li>
+            <div class="name">{{ comment.name }}</div>
+            <div class="comment">{{ comment.comment }}</div>
+            <a href="{% url blogs_comment_delete post_pk=post.pk comment_pk=comment.pk %}">Удалить</a>
+        </li>
+        {% if comment.close %}
+            </blockquote>
+        {% endif %}
+
+    {% endfor %}
+    </ul>
+
+    <a href="{{ post.blog.get_absolute_url }}">Назад в блог</a>
+
+
+    <div id="template-comments-form">
+        {% get_comment_form for post as form %}
+          <form action="{% comment_form_target %}" method="post">
+              <input type="hidden" name="next" value="{% url blogs_comment_added post_pk=post.pk %}" />
+              <ul class="form">
+                  {% with form as form %}
+                      {% include "includes/form.html" %}
+                  {% endwith %}
+
+                  <li>
+                      <input type="submit" name="submit" value="Отправить">
+                    </li>
+
+              </ul>
+              </form>
+    </div>
+
+{% endblock %}

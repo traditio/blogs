@@ -10,20 +10,22 @@
 
 {% block content %}
 
-    <h1>{% if blog.author %}{{ blog.author.username }} - {% endif %}
+    <h1>
+        {% if blog.author %}{{ blog.author.username }} - {% endif %}
         {{ blog.title }}
     </h1>
-    
+
     {% if user_can_post %}
+        <h2>Добавить пост</h2>
         {% with form as form %}
             {% include "blogs/forms/post_to_blog.html" %}
         {% endwith %}
     {% endif %}
 
-    <ul class="blog-entries">
+    <ul class="posts">
         {% for post in posts %}
             {% with post as post %}
-                {% include "blogs/post.html" %}
+                {% include "blogs/includes/blog_post.html" %}
             {% endwith %}
         {% empty %}
             <li><p>Удивительно, но пока еще нет ни одного поста.</p></li>

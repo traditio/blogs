@@ -1,7 +1,11 @@
-<form action="" method="post">
+<form action="" method="post" class="add-post">
     {% csrf_token %}
-    <ul class="blog-post-form">
-        {{ form.as_ul }}
-        <li><input type="submit" value="Создать запись"></li>
+    <ul class="form">
+        {% with form as form %}
+            {% include "includes/form.html" %}
+        {% endwith %}
+        <li>
+            <input type="submit" value="Создать запись">
+        </li>
     </ul>
 </form>

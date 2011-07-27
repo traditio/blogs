@@ -11,5 +11,6 @@ pytils
 PyYaml
 django-flash
 
--e git+git://github.com/HonzaKral/django-threadedcomments.git#egg=django-threadedcomments
--e git+git://github.com/dcramer/django-ratings.git#egg=djangoratings
+git+git://github.com/HonzaKral/django-threadedcomments.git
+git+git://github.com/dcramer/django-ratings.git
+git+git://github.com/django-extensions/django-extensions.git
