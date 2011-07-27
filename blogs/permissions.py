@@ -9,3 +9,6 @@ class BlogPostPermissions(object):
         if user.is_superuser or self.post.blog.author == user:
             return True
         return False
+
+    def can_edit(self, user):
+        return self.can_delete(user)

@@ -9,4 +9,5 @@ urlpatterns = patterns('blogs.views',
     url('^(?P<author>[a-zA-Z0-9-]+)/(?P<slug>[a-zA-Z0-9-]+)/$', 'index', name='blogs_index'),
     url('^(?P<slug>[a-zA-Z0-9-]+)/$', 'index', dict(author=None), name='blogs_index'),
     url('^(?P<blog_pk>\d+)/(?P<post_pk>\d+)/delete/$', 'post_delete', name='blogs_post_delete'),
+    url('^(?P<blog_pk>\d+)/(?P<post_pk>\d+)/edit/$', 'post_edit', name='blogs_post_edit'),
 )

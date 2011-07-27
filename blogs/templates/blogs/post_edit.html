@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    {% if saved %}
+        <p>Сохранено!</p>
+    {% endif %}
+    
+    <form action="" method="post">
+        <ul>
+            {% csrf_token %}
+            {{ form.as_ul }}
+            <li><input type="submit" value="Сохранить"></li>
+        </ul>
+    </form>
+
+    <a href="{{ post.blog.get_absolute_url }}">Назад в блог</a>
+{% endblock %}

@@ -17,6 +17,7 @@
         {#                    {% endwith %}#}
     </div>
     <div class="actions">
-        <a href="{% url blogs_post_delete blog_pk=post.blog_id post_pk=post.pk %}">Удалить запись</a>
+        <a href="{% url blogs_post_delete blog_pk=post.blog_id post_pk=post.pk %}">Удалить</a>
+        <a href="{% url blogs_post_edit blog_pk=post.blog_id post_pk=post.pk %}">Редактировать</a>
     </div>
 </li>

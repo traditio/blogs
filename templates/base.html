@@ -7,6 +7,16 @@
 </head>
 
 <body>
+    {% block flash %}
+       {% if flash.message %}
+        <!-- There's a flash-scoped object under the 'message' key -->
+
+        <div class="flash_message">
+            <p>{{ flash.message }}</p>
+        </div>
+        {% endif %}
+    {% endblock %}
+    
     {% block content %}
         {% placeholder "main" %}
     {% endblock %}

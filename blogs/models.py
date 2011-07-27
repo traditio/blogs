@@ -1,5 +1,6 @@
 #coding=utf-8
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.db.models.signals import pre_save, post_save
 from django.utils.encoding import smart_unicode, smart_str
 from django.utils.translation import ugettext_lazy as _
@@ -58,6 +59,14 @@ class Blog(models.Model):
         """
         return True
 
+    @models.permalink
+    def get_absolute_url(self):
+        if self.author:
+            kwargs = dict(slug=self.slug, author=self.author.username)
+        else:
+            kwargs = dict(slug=self.slug)
+        return ('blogs_index', [], kwargs)
+
 pre_save.connect(Blog.create_slug, Blog)
 
 
@@ -94,7 +103,6 @@ class BlogPost(models.Model):
         else:
             slug = str(pk)
         instance.__class__.objects.filter(pk=pk).update(slug=slug)
-
 
     @property
     def permissions(self):
