@@ -1,7 +1,9 @@
-{% extends "base.html" %}
+{% extends "blogs/base.html" %}
+{% load rating_block %}
 
 {% block extra-head %}
     <script type="text/javascript" src="{{ MEDIA_URL }}js/theradedcomments.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/ratings.js"></script>
 {% endblock %}
 
 
@@ -54,14 +56,11 @@
             <ul>{% endif %}
                 <li data-parent-pk="{{ comment.pk }}" {% if comment.last %} class="last"{% endif %}>
                     <!-- comment body -->
-                    <div>
-                        pk: {{ comment.pk }}</br>
-                        parent: {{ comment.parent.pk }}</br>
-                    </div>
-        {#            <div class="name">{{ comment.name }}</div>#}
-        {#            <div class="comment">{{ comment.comment }}</div>#}
+                    <div class="name">{{ comment.name }}</div>
+                    <div class="comment">{{ comment.comment }}</div>
                     <a class="reply" href="#">Ответить</a>
                     <a href="{% url blogs_comment_delete post_pk=post.pk comment_pk=comment.pk %}">Удалить</a>
+                    {% rating comment %}
                     <!-- /comment body -->
             {% for close in comment.close %}
                 </li>

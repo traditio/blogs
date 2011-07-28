@@ -1,3 +1,5 @@
+{% load rating_block %}
+
 <li>
     <div class="date">{{ post.created }}</div>
     {% if post.title %}
@@ -21,5 +23,6 @@
         <a href="{% url blogs_post_delete blog_pk=post.blog_id post_pk=post.pk %}">Удалить</a>
         <a href="{% url blogs_post_edit blog_pk=post.blog_id post_pk=post.pk %}">Редактировать</a>
         <a href="{{ post.get_absolute_url }}">Комментарии</a>
+        {% rating post %}
     </div>
 </li>
