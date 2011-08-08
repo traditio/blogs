@@ -15,4 +15,4 @@ from blogs.models import BlogPost
 class BlogPostForm(ModelForm):
     class Meta:
         model = BlogPost
-        fields = ('title', 'content', 'tags')
+        fields = ('content', 'tags')

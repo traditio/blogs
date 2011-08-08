@@ -9,7 +9,7 @@ from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from threadedcomments.models import ThreadedComment
+from blogs.comments.models import ThreadedCommentWithPermissions
 
 
 class ShortCommentDetailsForm(CommentDetailsForm):
@@ -102,7 +102,7 @@ class ThreadedCommentForm(ShortCommentForm):
         print self.fields['honeypot']
 
     def get_comment_model(self):
-        return ThreadedComment
+        return ThreadedCommentWithPermissions
 
     def get_comment_create_data(self):
         d = super(ThreadedCommentForm, self).get_comment_create_data()

@@ -10,6 +10,15 @@
 </head>
 
 <body>
+
+    <div class="auth">
+        {% if request.user.is_anonymous %}
+            <a href="{% url django.contrib.auth.views.login %}">Вход</a>
+        {% else %}
+            {{ request.user }} <a href="{% url django.contrib.auth.views.logout %}">выход</a>
+        {% endif %}
+    </div>
+
     {% block flash %}
        {% if flash.message %}
         <!-- There's a flash-scoped object under the 'message' key -->

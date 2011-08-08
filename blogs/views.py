@@ -1,51 +1,55 @@
 #coding=utf-8
 from django.contrib.auth.decorators import login_required
-from django.http import  Http404, HttpResponseForbidden
+from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
-from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_http_methods
 from django.views.generic.simple import direct_to_template
-from threadedcomments.models import ThreadedComment
 
+from blogs.comments import get_model
 from blogs.forms import BlogPostForm
 from blogs.models import Blog, BlogPost
 from blogs import settings
+from blogs.settings import POSTS_PER_PAGE
 
-
-def get_blog_or_404(author, slug):
-    blog = Blog.objects.get_by_author_slug(author, slug)
-    if not blog:
-        raise Http404(u"Блог %s не найден." % smart_unicode(slug))
-    return blog
+@require_http_methods(["GET", "POST"])
+def index(request):
+    start = long(request.REQUEST.get('start', 0))
+    limit = long(request.REQUEST.get('limit', POSTS_PER_PAGE))
+    posts = BlogPost.objects.all().order_by('-created')[start:(start+limit)]
+    return direct_to_template(request,
+        "blogs/index.html",
+        {"posts": posts}
+    )
 
 
 @require_http_methods(["GET", "POST"])
 @login_required
-def index(request, author, slug):
+def blog_index(request, slug):
     """Содерижмое блога"""
     form = BlogPostForm(request.POST or None)
-    blog = get_blog_or_404(author, slug)
+    blog = get_object_or_404(Blog, slug=slug)
 
     if request.method == "POST":
-        if not blog.user_can_post(request.user):
+        if not blog.permissions.can_post(request.user):
             return HttpResponseForbidden(u"Пользователь {0} не может постить в блог \"{1}\".".format(
                 request.user.username, blog.title
             ))
         if form.is_valid():
             post = form.save(commit=False)
             post.blog = blog
+            post.author = request.user
             post.save()
             form.save_m2m()
             form = BlogPostForm()
             request.flash['message'] = _(u'Пост добавлен.')
 
-    posts = BlogPost.objects.filter(blog__pk=blog.pk)[:settings.POSTS_PER_PAGE]
+    posts = BlogPost.objects.filter(blog__pk=blog.pk).order_by('-created')[:settings.POSTS_PER_PAGE]
     return direct_to_template(request, 'blogs/blog.html', dict(
         blog=blog,
         posts=posts,
         form=form,
-        user_can_post=blog.user_can_post(request.user)
+        user_can_post=blog.permissions.can_post(request.user)
     ))
 
 
@@ -67,7 +71,7 @@ def post_delete(request, blog_pk, post_pk):
 def comment_delete(request, post_pk, comment_pk):
     post = get_object_or_404(BlogPost, pk=post_pk)
     if post.permissions.can_delete_comments(request.user):
-        comment = get_object_or_404(ThreadedComment, pk=comment_pk)
+        comment = get_object_or_404(get_model(), pk=comment_pk)
         comment.delete()
         request.flash['message'] = _(u'Комментарий удален.')
         return redirect(post.get_absolute_url())
@@ -88,7 +92,7 @@ def post_edit(request, blog_pk, post_pk):
             return HttpResponseForbidden(
                 u'Пользователь {0} не может редактировать пост \"{1}\" блога \"{2)\".'.format(
                     request.user.username,
-                    post.slug,
+                    post.pk,
                     post.blog.slug
                 ))
         post = form.save(commit=False)
@@ -105,13 +109,13 @@ def post_edit(request, blog_pk, post_pk):
 
 @require_http_methods(["GET", "POST"])
 @login_required
-def post(request, author, blog_slug, post_slug):
-    blog = get_blog_or_404(author, blog_slug)
-    post = get_object_or_404(BlogPost, blog=blog, slug=post_slug)
+def post(request, blog_slug, post_pk):
+    blog = get_object_or_404(Blog, slug=blog_slug)
+    post = get_object_or_404(BlogPost, blog=blog, pk=post_pk)
     return direct_to_template(request, "blogs/post.html", dict(
         blog=blog,
         post=post,
-        ))
+    ))
 
 
 @require_http_methods(["GET"])

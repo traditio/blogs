@@ -1,9 +1,9 @@
-from threadedcomments.models import ThreadedComment
 from blogs.comments.forms import ThreadedCommentForm
+from blogs.comments.models import ThreadedCommentWithPermissions
 
 
 def get_model():
-    return ThreadedComment
+    return ThreadedCommentWithPermissions
 
 
 def get_form():

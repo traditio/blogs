@@ -20,7 +20,7 @@ DEFAULT_LANGUAGE = 0
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(PROJECT_DIR, 'dev.sqlite3'),
+        'NAME': os.path.join(PROJECT_DIR, 'dev.sqlite'),
     }
 }
 
@@ -137,5 +137,7 @@ INSTALLED_APPS = (
     # расширения для джанги
     'django_extensions',
 )
+
+LOGIN_REDIRECT_URL = '/'
 
 COMMENTS_APP = 'blogs.comments'

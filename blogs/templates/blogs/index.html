@@ -1,0 +1,34 @@
+{% extends "blogs/base.html" %}
+{% load rating_block blogs_permissions %}
+
+{% block content %}
+    <h1>Последние посты</h1>
+    <ul class="posts">
+
+     {% for post in posts %}
+        <li>
+            <div class="date">{{ post.created }}</div>
+            <h2>{{ post.author }} &mdash; <a href="{{ post.blog.get_absolute_url }}">{{ post.blog }}</a></h2>
+            <div class="body">
+                {#                    <div class="avatar">{{ post.author.avatar }}</div>#}
+                <div class="text">{{ post.content|safe }}</div>
+                {% with post.tags.all as tags %}
+                    {% if tags %}
+                        <div class="tags"><span style="font-weight: bold;">Теги: </span> {{ tags|join:", " }}</div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <div class="actions">
+                <a href="{% url blogs_post_delete blog_pk=post.blog_id post_pk=post.pk %}">Удалить</a>
+                <a href="{% url blogs_post_edit blog_pk=post.blog_id post_pk=post.pk %}">Редактировать</a>
+                <a href="{{ post.get_absolute_url }}">Комментарии</a>
+                {% if request.user|can_vote_for:post %}
+                    {% rating post %}
+                {% endif %}
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
+    
+{% endblock %}

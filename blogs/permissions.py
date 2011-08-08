@@ -1,6 +1,10 @@
 #coding=utf-8
 
-class BlogPostPermissions(object):
+class Permissions(object):
+    """Абстрактный класс прав для моделей"""
+    
+
+class BlogPostPermissions(Permissions):
 
     def __init__(self, post):
         self.post = post
@@ -15,3 +19,20 @@ class BlogPostPermissions(object):
     
     def can_edit(self, user):
         return self.can_delete(user)
+
+    def can_vote(self, user):
+        if user == self.post.author:
+            return False
+        return True
+
+    
+class BlogPermissions(Permissions):
+
+    def __init__(self, blog):
+        self.blog = blog
+
+    def can_post(self, user):
+        """
+        Может ли постить в блог пользователь :user ?
+        """
+        return True

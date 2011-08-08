@@ -11,6 +11,11 @@
 {% load threadedcomments_tags %}
 
 {% block content %}
+
+    <div class="breadcrumbs">
+        <a href="{% url blogs_blog_index %}">Блоги</a> > <a href="{{ post.blog.get_absolute_url }}">{{ post.blog.title }}</a>
+    </div>
+
     {% if post.title %}
         <h1>{{ post.title }}</h1>
     {% endif %}
@@ -56,10 +61,14 @@
             <ul>{% endif %}
                 <li data-parent-pk="{{ comment.pk }}" {% if comment.last %} class="last"{% endif %}>
                     <!-- comment body -->
-                    <div class="name">{{ comment.name }}</div>
-                    <div class="comment">{{ comment.comment }}</div>
-                    <a class="reply" href="#">Ответить</a>
-                    <a href="{% url blogs_comment_delete post_pk=post.pk comment_pk=comment.pk %}">Удалить</a>
+                    {% if comment.is_removed %}
+                        <p>Комментарий был удален.</p>
+                    {% else %}
+                        <div class="name">{{ comment.name }}</div>
+                        <div class="comment">{{ comment.comment }}</div>
+                        <a class="reply" href="#">Ответить</a>
+                        <a href="{% url blogs_comment_delete post_pk=post.pk comment_pk=comment.pk %}">Удалить</a>
+                    {% endif %}
                     {% rating comment %}
                     <!-- /comment body -->
             {% for close in comment.close %}
@@ -79,7 +88,7 @@
     <div id="template-comments-form" class="hidden">
         {% get_comment_form for post as form %}
         <form action="{% comment_form_target %}" method="post" style="display: none;">
-            <input type="hidden" name="next" value="{% url blogs_comment_added post_pk=post.pk %}"/>
+            <input type="hidden" name="next" value="{{ post.get_absolute_url }}"/>
             <ul class="form">
                 {% with form as form %}
                     {% include "includes/form.html" %}
