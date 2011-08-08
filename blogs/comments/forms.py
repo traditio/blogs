@@ -99,7 +99,6 @@ class ThreadedCommentForm(ShortCommentForm):
         initial.update({'parent': self.parent})
         super(ThreadedCommentForm, self).__init__(target_object, data=data,
                                                   initial=initial)
-        print self.fields['honeypot']
 
     def get_comment_model(self):
         return ThreadedCommentWithPermissions

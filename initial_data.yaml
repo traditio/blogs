@@ -6,7 +6,7 @@
     title: "\u0411\u043B\u043E\u0433"
   model: blogs.blog
   pk: 1
-- fields: {author: 1, blog: 1, comments_count: 2, content: "\u041F\u043E\u0441\u0442\
+- fields: {author: 1, blog: 1, comments_count: 0, content: "\u041F\u043E\u0441\u0442\
       1", created: !!timestamp '2011-08-08 11:29:07.264034', modified: !!timestamp '2011-08-08
       11:29:07.264098'}
   model: blogs.blogpost
@@ -435,21 +435,28 @@
     meta_keywords: '', page: 1, page_title: '', path: blogi, redirect: '', slug: blogi,
     title: "\u0411\u043B\u043E\u0433\u0438"}
   model: cms.title
-  pk: 1
-- fields: {comment: "\u043F\u0440\u0438\u0432\u0435\u0442!", content_type: 17, ip_address: 127.0.0.1,
+  pk: 1- fields: {comment: "\u043F\u0440\u0438\u0432\u0435\u0442", content_type: 17, ip_address: 192.168.80.1,
     is_public: true, is_removed: false, object_pk: '1', site: 1, submit_date: !!timestamp '2011-08-08
-      12:51:07.726959', user: 1, user_email: '', user_name: '', user_url: ''}
+      16:28:40.194400', user: 1, user_email: '', user_name: '', user_url: ''}
   model: comments.comment
   pk: 1
-- fields: {comment: "\u043F\u0440\u0438\u0432\u0435\u0442 \u043A\u0430\u043A \u0434\
-      \u0435\u043B\u0430?", content_type: 17, ip_address: 127.0.0.1, is_public: true,
-    is_removed: false, object_pk: '1', site: 1, submit_date: !!timestamp '2011-08-08
-      12:52:39.784310', user: 2, user_email: '', user_name: '', user_url: ''}
+- fields: {comment: "\u043A\u0430\u043A \u0434\u0435\u043B\u0430", content_type: 17,
+    ip_address: 192.168.80.1, is_public: true, is_removed: false, object_pk: '1',
+    site: 1, submit_date: !!timestamp '2011-08-08 16:28:47.132175', user: 1, user_email: '',
+    user_name: '', user_url: ''}
   model: comments.comment
   pk: 2
+- fields: {comment: "\u0447\u0442\u043E?", content_type: 17, ip_address: 192.168.80.1,
+    is_public: true, is_removed: false, object_pk: '1', site: 1, submit_date: !!timestamp '2011-08-08
+      16:28:54.103190', user: 1, user_email: '', user_name: '', user_url: ''}
+  model: comments.comment
+  pk: 3
 - fields: {}
   model: comments.threadedcommentwithpermissions
   pk: 1
 - fields: {}
   model: comments.threadedcommentwithpermissions
   pk: 2
+- fields: {}
+  model: comments.threadedcommentwithpermissions
+  pk: 3

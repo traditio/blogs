@@ -15,6 +15,7 @@ from blogs.settings import POSTS_PER_PAGE
 
 
 @require_http_methods(["GET", "POST"])
+@login_required
 def index(request):
     start = long(request.REQUEST.get('start', 0))
     limit = long(request.REQUEST.get('limit', POSTS_PER_PAGE))
@@ -109,23 +110,21 @@ def post_edit(request, blog_pk, post_pk):
     ))
 
 
+def _update_post_view_time(request, post):
+    view_time, created = BlogPostView.objects.get_or_create(user=request.user, post=post)
+    view_time.timestamp = datetime.now()
+    view_time.save()
+
+    
 @require_http_methods(["GET", "POST"])
 @login_required
 def post(request, blog_slug, post_pk):
     blog = get_object_or_404(Blog, slug=blog_slug)
     post = get_object_or_404(BlogPost, blog=blog, pk=post_pk)
-    view_time, created = BlogPostView.objects.get_or_create(user=request.user, blog=blog, post=post)
-    if not created:
-        view_time.timestamp = datetime.now()
-        view_time.save()
+    last_view = post.last_view(request.user)
+    _update_post_view_time(request, post)
     return direct_to_template(request, "blogs/post.html", dict(
         blog=blog,
         post=post,
+        last_view=last_view
     ))
-
-
-@require_http_methods(["GET"])
-def comment_added(request, post_pk):
-    post = get_object_or_404(BlogPost, pk=post_pk)
-    request.flash['message'] = _(u'Комментарий добавлен.')
-    return redirect(post.get_absolute_url())

@@ -141,5 +141,6 @@ INSTALLED_APPS = (
 )
 
 LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/accounts/login/'
 
 COMMENTS_APP = 'blogs.comments'

@@ -21,24 +21,17 @@
     {% endif %}
     <div class="date">{{ post.created }}</div>
     <div class="body">
-        {#                    <div class="avatar">{{ post.author.avatar }}</div>#}
         <div class="text">{{ post.content|safe }}</div>
         {% with post.tags.all as tags %}
             {% if tags %}
                 <div class="tags"><span style="font-weight: bold;">Теги: </span> {{ tags|join:", " }}</div>
             {% endif %}
         {% endwith %}
-        {#                    {% with entry as obj %}#}
-        {#                        {% include "ratings/rating.html" %}#}
-        {#                        {% include "blogs/comments/count.html" %}#}
-        {#                    {% endwith %}#}
     </div>
     <div class="actions">
         <a href="{% url blogs_post_delete blog_pk=post.blog_id post_pk=post.pk %}">Удалить</a>
         <a href="{% url blogs_post_edit blog_pk=post.blog_id post_pk=post.pk %}">Редактировать</a>
     </div>
-
-
 
     <h2>Комментарии</h2>
     <p>
@@ -48,31 +41,26 @@
 
     </p>
 
-
     <ul class="comments">
         {% get_comment_list for post as comment_list %}
         {% for comment in comment_list|fill_tree|annotate_tree %}
             <li class="comment">
-            {% ifchanged comment.parent_id %}{% else %}
-                </li>
-            {% endifchanged %}
+                {% ifchanged comment.parent_id %}{% else %}
+                    </li>
+                {% endifchanged %}
             {% if not comment.open and not comment.close %}
                 </li>
             {% endif %}
             {% if comment.open %}
-            <ul>{% endif %}
-                <li data-parent-pk="{{ comment.pk }}" {% if comment.last %} class="last"{% endif %}>
-                    <!-- comment body -->
-                    {% if comment.is_removed %}
-                        <p>Комментарий был удален.</p>
-                    {% else %}
-                        <div class="name">{{ comment.name }}</div>
-                        <div class="comment">{{ comment.comment }}</div>
-                        <a class="reply" href="#">Ответить</a>
-                        <a href="{% url blogs_comment_delete post_pk=post.pk comment_pk=comment.pk %}">Удалить</a>
-                    {% endif %}
-                    {% rating comment %}
-                    <!-- /comment body -->
+                <ul>{% endif %}
+        <li data-parent-pk="{{ comment.pk }}" class="{% if comment.last %}last {% endif %}{% if last_view < comment.submit_date %}new-comment {% endif %}">
+            <!-- comment body -->
+            <div class="name">{{ comment.name }}</div>
+            <div class="comment">{{ comment.comment }}</div>
+            <a class="reply" href="#">Ответить</a>
+            <a href="{% url blogs_comment_delete post_pk=post.pk comment_pk=comment.pk %}">Удалить</a>
+            {% rating comment %}
+            <!-- /comment body -->
             {% for close in comment.close %}
                 </li>
                 </ul>

@@ -1,5 +1,6 @@
 #coding=utf-8
 from django.contrib.auth.models import User
+from django.contrib.comments.signals import comment_was_posted
 from django.db.models.expressions import F
 from django.db.models.signals import pre_save, post_save, pre_delete
 from django.utils.encoding import smart_unicode
@@ -13,7 +14,7 @@ from taggit.managers import TaggableManager
 from ratings.models import RatedItem
 from blogs.permissions import BlogPostPermissions, BlogPermissions
 from comments import get_model
-
+from datetime import datetime
 
 class Blog(models.Model):
     author = models.ForeignKey(User, verbose_name=_(u'Владелец блога'), related_name='blogs', blank=True, null=True)
@@ -98,8 +99,23 @@ class BlogPost(models.Model):
         if instance.content_object.__class__ == cls:
             cls.objects.filter(pk=instance.content_object.pk).update(comments_count=F('comments_count')-1)
 
+    @classmethod
+    def on_comment_post(cls, comment, request, **kwargs):
+        if comment.content_object.__class__ == cls:
+            view_time, created = BlogPostView.objects.get_or_create(user=request.user, post=comment.content_object)
+            view_time.timestamp = datetime.now()
+            view_time.save()
+
+    def last_view(self, user):
+        views = self.last_view_objs.filter(user=user).order_by('-timestamp')
+        if len(views) > 0:
+            return views[0].timestamp
+        else:
+            return datetime.now()
+
 post_save.connect(BlogPost.on_comment_create, sender=get_model())
 pre_delete.connect(BlogPost.on_comment_delete, sender=get_model())
+comment_was_posted.connect(BlogPost.on_comment_post, sender=get_model())
 
 
 class BlogSubscription(models.Model):
@@ -118,5 +134,13 @@ class BlogSubscription(models.Model):
 class BlogPostView(models.Model):
     user = models.ForeignKey(User)
     blog = models.ForeignKey(Blog)
-    post = models.ForeignKey(BlogPost)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    post = models.ForeignKey(BlogPost, related_name='last_view_objs')
+    timestamp = models.DateTimeField(default=datetime.now)
+
+    def __unicode__(self):
+        return u'{0} post={1} {2}'.format(smart_unicode(self.user), str(self.post_id), str(self.timestamp))
+    
+    def save(self, force_insert=False, force_update=False, using=None):
+        self.blog = self.post.blog
+        super(BlogPostView, self).save(force_insert, force_update, using)
+

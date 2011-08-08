@@ -35,4 +35,4 @@ class BlogPermissions(Permissions):
         """
         Может ли постить в блог пользователь :user ?
         """
-        return True
+        return self.blog.author == None or self.blog.author == user
