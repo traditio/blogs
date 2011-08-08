@@ -1,0 +1,10 @@
+{% load new_comments_count pytils_numeral %}
+
+<a href="{{ post.get_absolute_url }}">
+    {{ post.comments_count }} комментари{{ post.comments_count|choose_plural:"й,я,ев" }}
+</a> /
+{% with post|new_comments_count:request.user as new_comments %}
+    <a href="{{ post.get_absolute_url }}">
+       {{ new_comments }} новы{{ new_comments|choose_plural:"й,х,х" }}
+    </a>
+{% endwith %}

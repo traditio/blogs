@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 
-from blogs.models import Blog, BlogPost, BlogSubscription
+from blogs.models import Blog, BlogPost, BlogSubscription, BlogPostView
 from blogs.comments import get_model
 
 
@@ -35,6 +35,7 @@ class CommentInline(GenericTabularInline):
     max_num = 20
     can_delete = False
     fields = ('user', 'comment', 'is_removed',)
+    readonly_fields = ('user', 'comment', 'is_removed',)
     verbose_name = _(u'комментарий')
     verbose_name_plural = _(u'комментарии')
 
@@ -43,7 +44,7 @@ class BlogPostAdmin(admin.ModelAdmin):
     inlines = (CommentInline,)
     date_hierarchy = 'modified'
     search_fields = ('blog',)
-    list_display = ('pk', 'blog', 'author', 'modified', 'comments_num',)
+    list_display = ('pk', 'blog', 'author', 'modified', 'comments_count',)
     list_display_links = ('pk',)
 
 admin.site.register(BlogPost, BlogPostAdmin)
@@ -53,3 +54,9 @@ class BlogSubscriptionAdmin(admin.ModelAdmin):
     pass
 
 admin.site.register(BlogSubscription, BlogSubscriptionAdmin)
+
+
+class BlogPostViewAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'user', 'post', 'timestamp',)
+
+admin.site.register(BlogPostView, BlogPostViewAdmin)

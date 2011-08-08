@@ -1,4 +1,5 @@
 #coding=utf-8
+from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
@@ -8,9 +9,10 @@ from django.views.generic.simple import direct_to_template
 
 from blogs.comments import get_model
 from blogs.forms import BlogPostForm
-from blogs.models import Blog, BlogPost
+from blogs.models import Blog, BlogPost, BlogPostView
 from blogs import settings
 from blogs.settings import POSTS_PER_PAGE
+
 
 @require_http_methods(["GET", "POST"])
 def index(request):
@@ -112,6 +114,10 @@ def post_edit(request, blog_pk, post_pk):
 def post(request, blog_slug, post_pk):
     blog = get_object_or_404(Blog, slug=blog_slug)
     post = get_object_or_404(BlogPost, blog=blog, pk=post_pk)
+    view_time, created = BlogPostView.objects.get_or_create(user=request.user, blog=blog, post=post)
+    if not created:
+        view_time.timestamp = datetime.now()
+        view_time.save()
     return direct_to_template(request, "blogs/post.html", dict(
         blog=blog,
         post=post,

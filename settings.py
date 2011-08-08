@@ -110,6 +110,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'django.contrib.comments',
+    'annoying',
+    'pytils',
     # комментарии
     'threadedcomments',
     'blogs.comments',

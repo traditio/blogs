@@ -3,7 +3,6 @@
 <li>
     <div class="date">{{ post.created }}</div>
     <div class="body">
-        {#                    <div class="avatar">{{ post.author.avatar }}</div>#}
         <div class="text">{{ post.content|safe }}</div>
         {% with post.tags.all as tags %}
             {% if tags %}
@@ -15,7 +14,11 @@
     <div class="actions">
         <a href="{% url blogs_post_delete blog_pk=post.blog_id post_pk=post.pk %}">Удалить</a>
         <a href="{% url blogs_post_edit blog_pk=post.blog_id post_pk=post.pk %}">Редактировать</a>
-        <a href="{{ post.get_absolute_url }}">Комментарии</a>
+
+        {% with post as post %}
+            {% include "blogs/includes/comments_link.html" %}
+        {% endwith %}
+
         {% if request.user|can_vote_for:post %}
             {% rating post %}
         {% endif %}

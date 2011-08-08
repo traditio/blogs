@@ -11,6 +11,8 @@ pytils
 PyYaml
 django-flash
 
+hg+https://bitbucket.org/offline/django-annoying
+
 git+git://github.com/HonzaKral/django-threadedcomments.git
 git+git://github.com/dcramer/django-ratings.git
 git+git://github.com/django-extensions/django-extensions.git

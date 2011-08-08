@@ -13,7 +13,7 @@
 {% block content %}
 
     <div class="breadcrumbs">
-        <a href="{% url blogs_blog_index %}">Блоги</a> > <a href="{{ post.blog.get_absolute_url }}">{{ post.blog.title }}</a>
+        <a href="{% url blogs_index %}">Блоги</a> > <a href="{{ post.blog.get_absolute_url }}">{{ post.blog.title }}</a>
     </div>
 
     {% if post.title %}
@@ -42,8 +42,10 @@
 
     <h2>Комментарии</h2>
     <p>
-        {% get_comment_count for post as comment_count %}
-        Количество комментариев: {{ comment_count }}
+        {% with post as post %}
+            {% include "blogs/includes/comments_link.html" %}
+        {% endwith %}
+
     </p>
 
 

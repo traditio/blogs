@@ -15,8 +15,6 @@ from blogs.permissions import BlogPostPermissions, BlogPermissions
 from comments import get_model
 
 
-
-
 class Blog(models.Model):
     author = models.ForeignKey(User, verbose_name=_(u'Владелец блога'), related_name='blogs', blank=True, null=True)
     title = models.CharField(verbose_name=_(u'Заголовок'), max_length=255)
@@ -63,11 +61,11 @@ class BlogPost(models.Model):
     author = models.ForeignKey(User, verbose_name=_(u'Автор'))
     blog = models.ForeignKey(Blog, verbose_name=_(u'Блог'), related_name='posts')
     content = models.TextField(verbose_name=_(u'Текст'))
-    
+
     tags = TaggableManager(verbose_name=_(u'Теги'), blank=True)
     ratings = generic.GenericRelation(RatedItem)
     comments = generic.GenericRelation(get_model(), object_id_field='object_pk')
-    comments_num = models.PositiveIntegerField(default=0, editable=False)
+    comments_count = models.PositiveIntegerField(default=0, editable=False)
     created = models.DateTimeField(auto_now=True, verbose_name=u'Дата создания')
     modified = models.DateTimeField(auto_now=True, verbose_name=u'Дата редактирования')
 
@@ -92,13 +90,17 @@ class BlogPost(models.Model):
     @classmethod
     def on_comment_create(cls, instance, raw, created, using, **kwargs):
         if created and instance.content_object.__class__ == cls:
-            pk = instance.content_object.pk
-            cls.objects.filter(pk=pk).update(comments_num=F('comments_num')+1)
+            cls.objects.filter(pk=instance.content_object.pk).update(comments_count=F('comments_count')+1)
 
     #noinspection PyUnusedLocal
     @classmethod
     def on_comment_delete(cls, instance, using, **kwargs):
-        cls.objects.filter(pk=instance.content_object.pk).update(comments_num=F('comments_num')-1)
+        if instance.content_object.__class__ == cls:
+            cls.objects.filter(pk=instance.content_object.pk).update(comments_count=F('comments_count')-1)
+
+post_save.connect(BlogPost.on_comment_create, sender=get_model())
+pre_delete.connect(BlogPost.on_comment_delete, sender=get_model())
+
 
 class BlogSubscription(models.Model):
     user = models.ForeignKey(User)
@@ -112,6 +114,9 @@ class BlogSubscription(models.Model):
         verbose_name = _(u'подписка')
         verbose_name_plural = _(u'подписки')
 
-
-post_save.connect(BlogPost.on_comment_create, sender=get_model())
-pre_delete.connect(BlogPost.on_comment_delete, sender=get_model())
+        
+class BlogPostView(models.Model):
+    user = models.ForeignKey(User)
+    blog = models.ForeignKey(Blog)
+    post = models.ForeignKey(BlogPost)
+    timestamp = models.DateTimeField(auto_now_add=True)
