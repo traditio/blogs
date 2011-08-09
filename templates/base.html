@@ -10,14 +10,17 @@
 </head>
 
 <body>
+    {% block auth %}
+        <div class="auth">
+            {% if request.user.is_anonymous %}
+                <a href="{% url django.contrib.auth.views.login %}">Вход</a>
+            {% else %}
+                {{ request.user }} <a href="{% url django.contrib.auth.views.logout %}">выход</a>
+            {% endif %}
+        </div>
+    {% endblock %}
 
-    <div class="auth">
-        {% if request.user.is_anonymous %}
-            <a href="{% url django.contrib.auth.views.login %}">Вход</a>
-        {% else %}
-            {{ request.user }} <a href="{% url django.contrib.auth.views.logout %}">выход</a>
-        {% endif %}
-    </div>
+    {% block search %}{% endblock %}
 
     {% block flash %}
        {% if flash.message %}

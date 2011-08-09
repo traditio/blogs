@@ -1,7 +1,7 @@
 #coding=utf-8
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_http_methods
@@ -128,3 +128,9 @@ def post(request, blog_slug, post_pk):
         post=post,
         last_view=last_view
     ))
+
+@require_http_methods(["GET"])
+@login_required
+def search(request):
+    if not request.GET.get('q'):
+        return HttpResponseBadRequest('400 Empty search query.')

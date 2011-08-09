@@ -1,0 +1,4 @@
+apt-get install sphinxsearch # нужна версия 0.9.9, есть в репозиториях debian testing
+
+mysql -uroot
+create database kinostan_blogs character set utf8 collate utf8_general_ci;

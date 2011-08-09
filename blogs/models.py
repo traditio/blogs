@@ -15,11 +15,13 @@ from ratings.models import RatedItem
 from blogs.permissions import BlogPostPermissions, BlogPermissions
 from comments import get_model
 from datetime import datetime
+from djangosphinx.models import SphinxSearch
+
 
 class Blog(models.Model):
     author = models.ForeignKey(User, verbose_name=_(u'Владелец блога'), related_name='blogs', blank=True, null=True)
     title = models.CharField(verbose_name=_(u'Заголовок'), max_length=255)
-    slug = models.CharField(verbose_name=_(u'Слэг'), max_length=255, blank=True, null=False)
+    slug = models.CharField(verbose_name=_(u'Слэг'), max_length=255, db_index=True)
 
     moderators = models.ManyToManyField(User, related_name='moderated_blogs', blank=True)
     created = models.DateTimeField(verbose_name=_(u'Дата создания'), auto_now_add=True)
@@ -60,15 +62,20 @@ pre_save.connect(Blog.create_slug, Blog)
 
 class BlogPost(models.Model):
     author = models.ForeignKey(User, verbose_name=_(u'Автор'))
-    blog = models.ForeignKey(Blog, verbose_name=_(u'Блог'), related_name='posts')
+    blog = models.ForeignKey(Blog, verbose_name=_(u'Блог'), related_name='posts', db_index=True)
     content = models.TextField(verbose_name=_(u'Текст'))
 
     tags = TaggableManager(verbose_name=_(u'Теги'), blank=True)
     ratings = generic.GenericRelation(RatedItem)
     comments = generic.GenericRelation(get_model(), object_id_field='object_pk')
     comments_count = models.PositiveIntegerField(default=0, editable=False)
-    created = models.DateTimeField(auto_now=True, verbose_name=u'Дата создания')
+    created = models.DateTimeField(auto_now=True, verbose_name=u'Дата создания', db_index=True)
     modified = models.DateTimeField(auto_now=True, verbose_name=u'Дата редактирования')
+
+    search = SphinxSearch()     
+    searchdelta = SphinxSearch(
+        index='blogs_blogpost blogs_delta',
+    )
 
     def __unicode__(self):
         return ': '.join([smart_unicode(self.blog), str(self.pk)])
@@ -132,9 +139,9 @@ class BlogSubscription(models.Model):
 
         
 class BlogPostView(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, db_index=True)
     blog = models.ForeignKey(Blog)
-    post = models.ForeignKey(BlogPost, related_name='last_view_objs')
+    post = models.ForeignKey(BlogPost, related_name='last_view_objs', db_index=True)
     timestamp = models.DateTimeField(default=datetime.now)
 
     def __unicode__(self):
@@ -144,3 +151,10 @@ class BlogPostView(models.Model):
         self.blog = self.post.blog
         super(BlogPostView, self).save(force_insert, force_update, using)
 
+class LastIndexedPost(models.Model):
+    counter_id = models.IntegerField(primary_key=True)
+    last_modified = models.DateTimeField()
+
+    class Meta:
+        pass
+    

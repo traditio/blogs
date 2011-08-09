@@ -435,7 +435,8 @@
     meta_keywords: '', page: 1, page_title: '', path: blogi, redirect: '', slug: blogi,
     title: "\u0411\u043B\u043E\u0433\u0438"}
   model: cms.title
-  pk: 1- fields: {comment: "\u043F\u0440\u0438\u0432\u0435\u0442", content_type: 17, ip_address: 192.168.80.1,
+  pk: 1
+- fields: {comment: "\u043F\u0440\u0438\u0432\u0435\u0442", content_type: 17, ip_address: 192.168.80.1,
     is_public: true, is_removed: false, object_pk: '1', site: 1, submit_date: !!timestamp '2011-08-08
       16:28:40.194400', user: 1, user_email: '', user_name: '', user_url: ''}
   model: comments.comment

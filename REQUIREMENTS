@@ -10,6 +10,7 @@ django-taggit
 pytils
 PyYaml
 django-flash
+django-sphinx
 
 hg+https://bitbucket.org/offline/django-annoying
 

@@ -19,10 +19,18 @@ DEFAULT_LANGUAGE = 0
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(PROJECT_DIR, 'dev.sqlite'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'kinostan_blogs',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
+
     }
 }
+DATABASE_ENGINE = 'mysql'
+DATABASE_NAME = DATABASES['default']['NAME']
+DATABASE_USER = DATABASES['default']['USER']
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -112,6 +120,7 @@ INSTALLED_APPS = (
     'django.contrib.comments',
     'annoying',
     'pytils',
+    'djangosphinx',
     # комментарии
     'threadedcomments',
     'blogs.comments',
@@ -144,3 +153,4 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
 
 COMMENTS_APP = 'blogs.comments'
+SPHINX_API_VERSION = 0x116

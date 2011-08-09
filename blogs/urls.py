@@ -6,6 +6,7 @@ from django.conf import settings
 
 urlpatterns = patterns('blogs.views',
     url('^$', 'index', name='blogs_index'),
+    url('^search/$', 'search', name='blogs_search'),
     # blog
     url('^(?P<slug>[a-zA-Z0-9-]+)/$', 'blog_index', name='blogs_blog_index'),
     # post
