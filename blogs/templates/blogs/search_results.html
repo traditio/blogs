@@ -1,0 +1,12 @@
+{% extends "blogs/base.html" %}
+
+{% block content %}
+    <h1>Результаты поиска</h1>
+    <p>По запросу <strong>{{ q }}</strong> найдено <strong>{{ count }}</strong> результатов.</p>
+
+    <ul>
+        {% for result in results %}
+            <li>{{ result.content }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

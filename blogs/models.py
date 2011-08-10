@@ -72,9 +72,13 @@ class BlogPost(models.Model):
     created = models.DateTimeField(auto_now=True, verbose_name=u'Дата создания', db_index=True)
     modified = models.DateTimeField(auto_now=True, verbose_name=u'Дата редактирования')
 
-    search = SphinxSearch()     
-    searchdelta = SphinxSearch(
-        index='blogs_blogpost blogs_delta',
+    search = SphinxSearch(
+        index='posts delta',
+        weights={
+            'content': 100,
+            },
+        mode='SPH_MATCH_ALL',
+        rankmode='SPH_RANK_NONE',
     )
 
     def __unicode__(self):
@@ -113,6 +117,11 @@ class BlogPost(models.Model):
             view_time.timestamp = datetime.now()
             view_time.save()
 
+    @classmethod
+    def on_delete(cls, instance, using, **kwargs):
+        now = datetime.now()
+        DeletedPosts.objects.create(post_id=instance.id, deleted_ts=now)
+
     def last_view(self, user):
         views = self.last_view_objs.filter(user=user).order_by('-timestamp')
         if len(views) > 0:
@@ -122,6 +131,7 @@ class BlogPost(models.Model):
 
 post_save.connect(BlogPost.on_comment_create, sender=get_model())
 pre_delete.connect(BlogPost.on_comment_delete, sender=get_model())
+pre_delete.connect(BlogPost.on_delete, sender=BlogPost)
 comment_was_posted.connect(BlogPost.on_comment_post, sender=get_model())
 
 
@@ -151,10 +161,20 @@ class BlogPostView(models.Model):
         self.blog = self.post.blog
         super(BlogPostView, self).save(force_insert, force_update, using)
 
-class LastIndexedPost(models.Model):
-    counter_id = models.IntegerField(primary_key=True)
-    last_modified = models.DateTimeField()
+
+# Модели для SphinxSearch, используемы для дельта-индекса
+
+class UpdatedPosts(models.Model):
+    updated_ts = models.DateTimeField(db_index=True)
 
     class Meta:
-        pass
+        db_table = 'blogs_blogpost_updated'
     
+
+class DeletedPosts(models.Model):
+    post_id = models.IntegerField()
+    deleted_ts = models.DateTimeField(db_index=True)
+
+    class Meta:
+        db_table = 'blogs_blogpost_deleted'
+

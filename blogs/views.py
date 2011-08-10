@@ -134,3 +134,10 @@ def post(request, blog_slug, post_pk):
 def search(request):
     if not request.GET.get('q'):
         return HttpResponseBadRequest('400 Empty search query.')
+    query = request.GET.get('q')
+    queryset = BlogPost.search.query(query)
+    count = queryset.count()
+    return direct_to_template(request,
+        "blogs/search_results.html",
+        dict(q=query, count=count, results=queryset)
+    )
