@@ -2,8 +2,8 @@
 from functools import partial
 from datetime import datetime
 from annoying.functions import get_object_or_None
+
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.aggregates import Sum
 from django.http import HttpResponseForbidden, HttpResponseBadRequest, Http404
@@ -12,12 +12,13 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_http_methods
 from django.views.generic.simple import direct_to_template
 
+from blogs import settings
 from blogs.comments import get_model
 from blogs.forms import BlogPostForm
 from blogs.models import Blog, BlogPost, BlogPostView
-from blogs import settings
 from blogs.settings import POSTS_PER_PAGE
 from ratings.models import RatedItem
+
 
 def add_rating_score(qs):
     ids = [c.id for c in qs]
@@ -28,21 +29,20 @@ def add_rating_score(qs):
         obj._cached_rating_score = scores.get(obj.id) or 0
     return qs
 
+
 def new_comments_count(posts_qs, user):
     posts_ids = [post.pk for post in posts_qs]
     try:
         views = dict((v.post_id, v) for v in list(BlogPostView.objects.filter(post__id__in=posts_ids, user=user)))
     except:
         raise ValueError
-    print 'views', views
     for post in posts_qs:
         view = views.get(post.id)
         if view is None:
-            print 'post id = ', post.id, 'view = ', view
             post.new_comments_count = post.comments_count
         else:
-            post.new_comments_count = post.comments.filter(submit_date__gte=view.timestamp).count()
-        print 'post id = ', post.id, 'new_comments_count = ', post.new_comments_count
+            post.new_comments_count = post.comments.filter(submit_date__gt=view.timestamp).count()
+
 
 @require_http_methods(["GET", "POST"])
 @login_required
@@ -102,6 +102,7 @@ def post_delete(request, blog_pk, post_pk):
         post.blog.title
     ))
 
+
 @require_http_methods(["GET"])
 @login_required
 def comment_delete(request, post_pk, comment_pk):
@@ -149,9 +150,6 @@ def _update_post_view_time(request, post):
     view_time.save()
 
 
-
-
-
 @require_http_methods(["GET", "POST"])
 @login_required
 def post(request, blog_slug, post_pk):
@@ -164,7 +162,7 @@ def post(request, blog_slug, post_pk):
     if view is None:
         post.new_comments_count = post.comments_count
     else:
-        post.new_comments_count = post.comments.filter(submit_date__gte=view.timestamp).count()
+        post.new_comments_count = post.comments.filter(submit_date__gt=view.timestamp).count()
     last_view = post.last_view(request.user)
     _update_post_view_time(request, post)
 
@@ -174,6 +172,7 @@ def post(request, blog_slug, post_pk):
         last_view=last_view,
         comment_list=list(add_rating_score(post.comments.select_related('user')))
     ))
+
 
 @require_http_methods(["GET"])
 @login_required

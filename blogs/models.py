@@ -170,7 +170,6 @@ class BlogPostView(models.Model):
         verbose_name = _(u'просмотр поста')
         verbose_name_plural = _(u'просмотры постов')
 
-
 # Модели для SphinxSearch, используемы для дельта-индекса
 
 class UpdatedPosts(models.Model):

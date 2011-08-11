@@ -1,4 +1,4 @@
-{% load new_comments_count pytils_numeral %}
+{% load pytils_numeral %}
 
 <a href="{{ post.get_absolute_url }}">
     {{ post.comments_count }} комментари{{ post.comments_count|choose_plural:"й,я,ев" }}
