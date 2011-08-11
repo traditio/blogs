@@ -3,11 +3,12 @@ from django.contrib import admin
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.views.generic.simple import redirect_to
-
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    url(r'^js/', include('test_jsmvc.urls')),
     url(r'^blogs/', include('blogs.urls')),
     url(r'^comments/', include('blogs.comments.urls')),
     url(r'^comments/', include('django.contrib.comments.urls')),
@@ -15,10 +16,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^', include('blogs.urls')),
-
 )
 
 if settings.DEBUG:
-    urlpatterns = patterns('',
-        (r'^' + settings.MEDIA_URL.lstrip('/'), include('appmedia.urls')),
-    ) + urlpatterns
+    urlpatterns += staticfiles_urlpatterns()
