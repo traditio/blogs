@@ -11,7 +11,7 @@ register = template.Library()
 def _can_vote_for_post(user, post):
     if not isinstance(post, BlogPost):
         raise ValueError
-    if user == post.author:
+    if user.id == post.author_id:
         return False
     return True
 

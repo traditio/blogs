@@ -1,7 +1,11 @@
-{% if can_vote %}
 <div class="voting">
+    {% if can_vote %}
     <a href="#" class="vote" rel="up">+</a>
+    {% endif %}
     <span class="score" data-content-type="{{ content_type }}" data-obj-pk="{{ obj_pk }}">{{ score }}</span>
+    {% if can_vote %}
     <a href="#" class="vote" rel="down">-</a>
+    {% endif %}
 </div>
-{% endif %}
+
+

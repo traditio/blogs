@@ -12,11 +12,12 @@
             <div class="body">
                 {#                    <div class="avatar">{{ post.author.avatar }}</div>#}
                 <div class="text">{{ post.content|safe }}</div>
-                {% with post.tags.all as tags %}
-                    {% if tags %}
-                        <div class="tags"><span style="font-weight: bold;">Теги: </span> {{ tags|join:", " }}</div>
-                    {% endif %}
-                {% endwith %}
+                <div class="tags"><span style="font-weight: bold;">Теги: </span> {{ tags_as_str }}</div>
+{#                {% with post.tags.all as tags %}#}
+{#                    {% if tags %}#}
+{#                        <div class="tags"><span style="font-weight: bold;">Теги: </span> {{ tags|join:", " }}</div>#}
+{#                    {% endif %}#}
+{#                {% endwith %}#}
             </div>
 
             <div class="actions">

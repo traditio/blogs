@@ -25,8 +25,6 @@ class RatingBlock(InclusionTag):
            isinstance(obj.permissions, Permissions) and\
            hasattr(obj.permissions, 'can_vote'):
             can_vote = obj.permissions.can_vote(context['user'])
-
-
         return {
             'content_type': str(obj._meta),
             'obj_pk': obj.pk,

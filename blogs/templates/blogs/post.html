@@ -22,11 +22,7 @@
     <div class="date">{{ post.created }}</div>
     <div class="body">
         <div class="text">{{ post.content|safe }}</div>
-        {% with post.tags.all as tags %}
-            {% if tags %}
-                <div class="tags"><span style="font-weight: bold;">Теги: </span> {{ tags|join:", " }}</div>
-            {% endif %}
-        {% endwith %}
+        <div class="tags"><span style="font-weight: bold;">Теги: </span> {{ post.tags_as_str }}</div>
     </div>
     <div class="actions">
         <a href="{% url blogs_post_delete blog_pk=post.blog_id post_pk=post.pk %}">Удалить</a>
@@ -42,7 +38,7 @@
     </p>
 
     <ul class="comments">
-        {% get_comment_list for post as comment_list %}
+{#        {% get_comment_list for post as comment_list %}#}
         {% for comment in comment_list|fill_tree|annotate_tree %}
             <li class="comment">
                 {% ifchanged comment.parent_id %}{% else %}

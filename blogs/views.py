@@ -1,7 +1,12 @@
 #coding=utf-8
+from functools import partial
 from datetime import datetime
+from annoying.functions import get_object_or_None
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden, HttpResponseBadRequest
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.aggregates import Sum
+from django.http import HttpResponseForbidden, HttpResponseBadRequest, Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_http_methods
@@ -12,14 +17,40 @@ from blogs.forms import BlogPostForm
 from blogs.models import Blog, BlogPost, BlogPostView
 from blogs import settings
 from blogs.settings import POSTS_PER_PAGE
+from ratings.models import RatedItem
 
+def add_rating_score(qs):
+    ids = [c.id for c in qs]
+    obj_for_content_type = qs[0] if isinstance(qs, (list, tuple)) else qs.model
+    content_type = ContentType.objects.get_for_model(obj_for_content_type)
+    scores = dict(RatedItem.objects.filter(content_type__id=content_type.id, object_id__in=ids).values_list('object_id').annotate(Sum('score')))
+    for obj in qs:
+        obj._cached_rating_score = scores.get(obj.id) or 0
+    return qs
+
+def new_comments_count(posts_qs, user):
+    posts_ids = [post.pk for post in posts_qs]
+    try:
+        views = dict((v.post_id, v) for v in list(BlogPostView.objects.filter(post__id__in=posts_ids, user=user)))
+    except:
+        raise ValueError
+    print 'views', views
+    for post in posts_qs:
+        view = views.get(post.id)
+        if view is None:
+            print 'post id = ', post.id, 'view = ', view
+            post.new_comments_count = post.comments_count
+        else:
+            post.new_comments_count = post.comments.filter(submit_date__gte=view.timestamp).count()
+        print 'post id = ', post.id, 'new_comments_count = ', post.new_comments_count
 
 @require_http_methods(["GET", "POST"])
 @login_required
 def index(request):
     start = long(request.REQUEST.get('start', 0))
     limit = long(request.REQUEST.get('limit', POSTS_PER_PAGE))
-    posts = BlogPost.objects.all().order_by('-created')[start:(start+limit)]
+    add_new_comments_count = partial(new_comments_count, user=request.user)
+    posts = BlogPost.objects.select_related('author__id', 'last_view_objs', 'blog__id').all().order_by('-created').transform(add_new_comments_count)[start:(start+limit)]
     return direct_to_template(request,
         "blogs/index.html",
         {"posts": posts}
@@ -47,7 +78,9 @@ def blog_index(request, slug):
             form = BlogPostForm()
             request.flash['message'] = _(u'Пост добавлен.')
 
-    posts = BlogPost.objects.filter(blog__pk=blog.pk).order_by('-created')[:settings.POSTS_PER_PAGE]
+    add_new_comments_count = partial(new_comments_count, user=request.user)
+    posts = BlogPost.objects.select_related('user__id', 'blog__id').filter(blog__pk=blog.pk).order_by('-created').transform(add_new_comments_count).transform(add_rating_score)[:settings.POSTS_PER_PAGE]
+
     return direct_to_template(request, 'blogs/blog.html', dict(
         blog=blog,
         posts=posts,
@@ -115,18 +148,31 @@ def _update_post_view_time(request, post):
     view_time.timestamp = datetime.now()
     view_time.save()
 
-    
+
+
+
+
 @require_http_methods(["GET", "POST"])
 @login_required
 def post(request, blog_slug, post_pk):
     blog = get_object_or_404(Blog, slug=blog_slug)
-    post = get_object_or_404(BlogPost, blog=blog, pk=post_pk)
+    try:
+        post = BlogPost.objects.select_related('blog__id', 'user').get(blog=blog, pk=post_pk)
+    except BlogPost.DoesNotExist:
+        raise Http404()
+    view = get_object_or_None(BlogPostView, post__id=post.id, user=request.user)
+    if view is None:
+        post.new_comments_count = post.comments_count
+    else:
+        post.new_comments_count = post.comments.filter(submit_date__gte=view.timestamp).count()
     last_view = post.last_view(request.user)
     _update_post_view_time(request, post)
+
     return direct_to_template(request, "blogs/post.html", dict(
         blog=blog,
         post=post,
-        last_view=last_view
+        last_view=last_view,
+        comment_list=list(add_rating_score(post.comments.select_related('user')))
     ))
 
 @require_http_methods(["GET"])

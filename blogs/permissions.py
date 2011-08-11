@@ -10,7 +10,7 @@ class BlogPostPermissions(Permissions):
         self.post = post
 
     def can_delete(self, user):
-        if user.is_superuser or self.post.blog.author == user:
+        if user.is_superuser or self.post.blog.author_id == user.id:
             return True
         return False
 
@@ -21,7 +21,7 @@ class BlogPostPermissions(Permissions):
         return self.can_delete(user)
 
     def can_vote(self, user):
-        if user == self.post.author:
+        if user.id == self.post.author_id:
             return False
         return True
 

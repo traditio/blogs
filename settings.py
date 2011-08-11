@@ -4,6 +4,8 @@ import os
 gettext = lambda s: s
 
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
+INTERNAL_IPS = ('127.0.0.1',)
+
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -85,10 +87,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'djangoflash.middleware.FlashMiddleware',
-    'cms.middleware.page.CurrentPageMiddleware',
-    'cms.middleware.user.CurrentUserMiddleware',
-    'cms.middleware.toolbar.ToolbarMiddleware',
-    'cms.middleware.media.PlaceholderMediaMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -96,12 +95,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.i18n',
     'django.core.context_processors.request',
     'django.core.context_processors.media',
-    'cms.context_processors.media',
     'djangoflash.context_processors.flash',
-)
-
-CMS_TEMPLATES = (
-    ('base.html', 'Base'),
 )
 
 ROOT_URLCONF = 'urls'
@@ -130,23 +124,12 @@ INSTALLED_APPS = (
     'taggit',
     # блоги
     'blogs',
-    # cms
-    'cms',
-    'menus',
-    'mptt',
-    'appmedia',
-#    'south',
-    'cms.plugins.text',
-    'cms.plugins.picture',
-    'cms.plugins.link',
-    'cms.plugins.file',
-    'cms.plugins.snippet',
-    'cms.plugins.googlemap',
     # комментарии
     'django.contrib.comments',
     'threadedcomments',
     # расширения для джанги
     'django_extensions',
+    'debug_toolbar',
 )
 
 LOGIN_REDIRECT_URL = '/'
@@ -154,3 +137,8 @@ LOGIN_URL = '/accounts/login/'
 
 COMMENTS_APP = 'blogs.comments'
 SPHINX_API_VERSION = 0x116
+
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+    'HIDE_DJANGO_SQL': True,
+}

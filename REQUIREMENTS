@@ -11,9 +11,11 @@ pytils
 PyYaml
 django-flash
 django-sphinx
+django-debug-toolbar
 
 hg+https://bitbucket.org/offline/django-annoying
 
+git+git://github.com/simonw/django-queryset-transform.git
 git+git://github.com/HonzaKral/django-threadedcomments.git
 git+git://github.com/dcramer/django-ratings.git
 git+git://github.com/django-extensions/django-extensions.git

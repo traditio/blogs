@@ -3,5 +3,7 @@ apt-get install sphinxsearch # нужна версия 0.9.9, есть в реп
 mysql -uroot
 create database kinostan_blogs character set utf8 collate utf8_general_ci;
 
-indexer --config ~/dev/kinostan-cms/configs/development/sphinx.conf --all
-indexer --config ~/dev/kinostan-cms/configs/development/sphinx.conf -i delta
+indexer --config ~/dev/kinostan-cms/configs/development/sphinx.conf --all  --rotate
+indexer --config ~/dev/kinostan-cms/configs/development/sphinx.conf -i delta --rotate
+
+searchd --config ~/dev/kinostan-cms/configs/development/sphinx.conf

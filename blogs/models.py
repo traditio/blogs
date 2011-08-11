@@ -16,7 +16,7 @@ from blogs.permissions import BlogPostPermissions, BlogPermissions
 from comments import get_model
 from datetime import datetime
 from djangosphinx.models import SphinxSearch
-
+from queryset_transform import TransformManager
 
 class Blog(models.Model):
     author = models.ForeignKey(User, verbose_name=_(u'Владелец блога'), related_name='blogs', blank=True, null=True)
@@ -66,16 +66,20 @@ class BlogPost(models.Model):
     content = models.TextField(verbose_name=_(u'Текст'))
 
     tags = TaggableManager(verbose_name=_(u'Теги'), blank=True)
+    tags_as_str = models.TextField(verbose_name=_(u'Теги в виде строки'))
     ratings = generic.GenericRelation(RatedItem)
     comments = generic.GenericRelation(get_model(), object_id_field='object_pk')
     comments_count = models.PositiveIntegerField(default=0, editable=False)
     created = models.DateTimeField(auto_now=True, verbose_name=u'Дата создания', db_index=True)
     modified = models.DateTimeField(auto_now=True, verbose_name=u'Дата редактирования')
 
+    objects = TransformManager()
+
     search = SphinxSearch(
         index='posts delta',
         weights={
-            'content': 100,
+            'tags_as_str': 1,
+            'content': 2,
             },
         mode='SPH_MATCH_ALL',
         rankmode='SPH_RANK_NONE',
@@ -90,7 +94,7 @@ class BlogPost(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return 'blogs_post', [], dict(blog_slug=self.blog.slug, post_pk=self.pk)
+        return 'blogs_post', [], dict(blog_slug=self.blog.slug, post_pk=self.id)
 
     @property
     def permissions(self):
@@ -122,8 +126,13 @@ class BlogPost(models.Model):
         now = datetime.now()
         DeletedPosts.objects.create(post_id=instance.id, deleted_ts=now)
 
+    @classmethod
+    def on_save(cls, instance, raw, created, using, **kwargs):
+        if instance.__class__ == cls:
+            instance.__class__.objects.filter(pk=instance.pk).update(tags_as_str=', '.join((t.name for t in instance.tags.all())))
+
     def last_view(self, user):
-        views = self.last_view_objs.filter(user=user).order_by('-timestamp')
+        views = self.last_view_objs.filter(user__id=user.id).order_by('-timestamp')
         if len(views) > 0:
             return views[0].timestamp
         else:
@@ -131,6 +140,7 @@ class BlogPost(models.Model):
 
 post_save.connect(BlogPost.on_comment_create, sender=get_model())
 pre_delete.connect(BlogPost.on_comment_delete, sender=get_model())
+post_save.connect(BlogPost.on_save, sender=BlogPost)
 pre_delete.connect(BlogPost.on_delete, sender=BlogPost)
 comment_was_posted.connect(BlogPost.on_comment_post, sender=get_model())
 
@@ -150,16 +160,15 @@ class BlogSubscription(models.Model):
         
 class BlogPostView(models.Model):
     user = models.ForeignKey(User, db_index=True)
-    blog = models.ForeignKey(Blog)
     post = models.ForeignKey(BlogPost, related_name='last_view_objs', db_index=True)
     timestamp = models.DateTimeField(default=datetime.now)
 
     def __unicode__(self):
         return u'{0} post={1} {2}'.format(smart_unicode(self.user), str(self.post_id), str(self.timestamp))
     
-    def save(self, force_insert=False, force_update=False, using=None):
-        self.blog = self.post.blog
-        super(BlogPostView, self).save(force_insert, force_update, using)
+    class Meta:
+        verbose_name = _(u'просмотр поста')
+        verbose_name_plural = _(u'просмотры постов')
 
 
 # Модели для SphinxSearch, используемы для дельта-индекса

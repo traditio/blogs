@@ -41,12 +41,16 @@ class RatedItemManager(models.Manager):
 
     def score_for_obj(self, obj):
         """Получить рейтинг объекта"""
-        content_type = ContentType.objects.get_for_model(obj)
-        score = self.model.objects\
-                .filter(content_type__pk=content_type.id, object_id=obj.id)\
-                .aggregate(Sum('score'))\
-                .get('score__sum') or 0
-        return score
+
+        if not hasattr(obj, '_cached_rating_score'):
+            content_type = ContentType.objects.get_for_model(obj)
+            score = self.model.objects\
+                    .filter(content_type__id=content_type.id, object_id=obj.id)\
+                    .aggregate(Sum('score'))\
+                    .get('score__sum') or 0
+            return score
+        else:
+            return obj._cached_rating_score
 
 
 class RatedItem(models.Model):

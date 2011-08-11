@@ -46,6 +46,7 @@ class BlogPostAdmin(admin.ModelAdmin):
     search_fields = ('blog',)
     list_display = ('pk', 'blog', 'author', 'modified', 'comments_count',)
     list_display_links = ('pk',)
+    readonly_fields = ('tags_as_str',)
 
 admin.site.register(BlogPost, BlogPostAdmin)
 

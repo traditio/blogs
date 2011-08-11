@@ -6,7 +6,9 @@
 
     <ul>
         {% for result in results %}
-            <li>{{ result.content }}</li>
+            {% with result as post %}
+                {% include "blogs/includes/blog_post_wo_actions.html" %}
+            {% endwith %}
         {% endfor %}
     </ul>
 {% endblock %}
