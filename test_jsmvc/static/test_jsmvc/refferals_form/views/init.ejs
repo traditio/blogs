@@ -1,0 +1,19 @@
+<form>
+    <p>Count: <%= friends.length %></p>
+    <ul>
+    <% for(var i =0; i < friends.length; i++){ %>
+    <li <%= friends[i] %>>
+        <label for="name[<%= friends[i].id %>]">Имя</label>
+        <input type="text" name="name[<%= friends[i].id %>]" id="name[<%= friends[i].id %>]">
+        <label for="email[<%= friends[i].id %>]">E-mail</label>
+        <input type="text" name="email[<%= friends[i].id %>]" id="email[<%= friends[i].id %>]">
+        <button class="delete" type="button">-</button>
+    </li>
+    <% } %>
+    </ul>
+    <button id="add-one-more" type="button">Добавить еще</button>  <input type="submit" value="Отправить">
+    <br/>
+    <button id="test" type="button">Тестить</button>
+</form>
+
+<div class="text"></div>

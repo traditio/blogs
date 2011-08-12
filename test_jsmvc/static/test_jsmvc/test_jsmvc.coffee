@@ -1,34 +1,34 @@
-$.Model "Num", {
-    findAll: "/js/ajax/"
-}, {
-    identity: () ->
-        "num_" + this.num
-}
+$.Model "Friend", {
+    destroyAll: (ids, success) ->
+        success()
+    destroy: (id, success) ->
+        this.destroyAll([id], success)
+}, {}
 
-$.Controller 'Nums', {
-    defaults :
-        start: 1
-        limit: 10
-        nums: new Num()
-}, {
+
+$.Controller 'RefferalsForm', {}, {
+
+    "{list} remove": () ->
+        this.callback('display')()
+
+    "{list} remove" : (list, ev, items) ->
+        items.elements(this.element).slideUp () ->
+            $(this).remove()
+
+    ".delete click": (el, ev) ->
+        el.parent().model().destroy()
+        
+    "#add-one-more click": () ->
+        this.options.list.push new Friend({id: this.options.list.length+1, name: '', email: ''})
+        
     init: () ->
-        this.callback('append')()
-        this.delegate document.documentElement,'#more-nums', 'click', this.callback('append')
+        for i in [0..2]
+            this.options.list.push new Friend({id: i, name: '', email: ''})
+        this.callback('display')()
 
-    append: () ->
-        controller = this
-        $.when(Num.findAll {start: controller.options.start, limit: controller.options.limit}).done (nums) ->
-            if controller.nums?
-                for n in nums
-                    controller.nums.push(new Num(n))
-            else
-                controller.nums = nums
-            controller.options.start += controller.options.limit
-            controller.callback('display')(controller.nums)
-
-    display: (nums) ->
-        $(this.element).html '//js_templates/nums.ejs', {nums: nums}
+    display: () ->
+        this.element.html this.view('init', {friends: this.options.list})
 }
 
 $ () ->
-    $('#nums').nums()
+    $('.refferals_form').refferals_form({list: new Friend.List([])})
